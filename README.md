@@ -7,8 +7,6 @@ change or a prompt change actually does to accuracy, latency, and cost.
 I built it to learn how eval harnesses work. The harness is the project; the ticket
 extraction LLM application is just the thing it measures.
 
----
-
 ## At a glance
 
 - **What models I compared:** Claude Haiku 4.5 vs GPT-5.4 mini, across 50 test cases
@@ -18,8 +16,6 @@ extraction LLM application is just the thing it measures.
 - **How the LLM outputs were scored:** exact match for the fields with one right answer, 
   and a Google Gemini judge for the free-text fields. The judge was checked against 
   labels from two independent human annotators before its verdicts were allowed to count
-
----
 
 ## What I learned
 
@@ -106,8 +102,6 @@ that's the version that wrecks an A-vs-B comparison. So I checked the judge's ag
 with my labels separately for each candidate, and it agreed with me a lot more on GPT-5.4
 mini than on Haiku. Turns out it likes longer answers, and Haiku writes short ones.
 
----
-
 ## How I built this
 
 I used Claude Code and followed spec-driven development. Before any code, there was a
@@ -116,8 +110,6 @@ against those documents and I reviewed the results ticket by ticket.
 
 The parts I did by hand: designing the failure cases in the test set, labeling 140
 calibration rows, and reviewing the 13 rows where my second annotator and I disagreed.
-
----
 
 ## What's next
 
