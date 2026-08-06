@@ -1,4 +1,4 @@
-# Model Evaluation Harness
+# LLM Evaluation Harness
 
 An offline evaluation harness for an LLM application that reads customer support email
 threads and turns them into structured support tickets. The harness measures what a model
