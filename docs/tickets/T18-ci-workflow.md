@@ -110,3 +110,73 @@ report body. Also noted for T19: local `.env` uses the deprecated
 `LANGFUSE_HOST` alias (honored by the harness env fallback) while CI uses
 the canonical `LANGFUSE_BASE_URL` variable — worth one README sentence to
 prevent the same misname recurring.
+
+## Amendment (2026-08-05) — repository migration
+
+The project was re-published at
+https://github.com/jluna777/llm-evaluation-harness. The prior repository
+carried a work Git identity (`jluna@adagetech.com`) on the commits behind
+its two verification PRs, and those PRs were opened by a work GitHub
+account; PR authorship is an account association and cannot be reassigned
+after the fact. This is a personal project, so it was migrated to leave a
+single identity on the record. `main`'s commit objects are unchanged —
+identical SHAs, identical author and committer dates (oldest commit still
+`2026-07-04 12:02:03 -0500` on both).
+
+GitHub-side timestamps could not be carried over: pull-request and
+workflow-run times are server-generated at creation. Rather than repoint the
+URLs above at artifacts that were never re-verified on the new repository,
+the T18 evidence was re-run in full on 2026-08-05. The 2026-07-19 evidence
+above refers to runs on the prior repository and is left unedited.
+
+Alias-drift pre-check before spending a run: served versions matched both
+committed baselines exactly — candidate_a `claude-haiku-4-5-20251001`,
+candidate_b `gpt-5.4-mini-2026-03-17`, judge `gemini-3-flash-preview` — so
+the fingerprint check was expected to pass and no re-baseline was needed.
+
+**Docs-only PR skips the gate.** PR #1
+(https://github.com/jluna777/llm-evaluation-harness/pull/1, adds `CLAUDE.md`
+only). No Eval Gate run was created: `gh pr checks` reported "no checks
+reported" immediately after open and again at ~90s, and the workflow's run
+list stayed empty while the workflow was confirmed registered and active
+(id 328264110).
+
+**src-touching PR runs the gate, exit 0.** PR #2
+(https://github.com/jluna777/llm-evaluation-harness/pull/2, the same
+docstring-only change to `src/harness/models/gemini_client.py`). Run:
+https://github.com/jluna777/llm-evaluation-harness/actions/runs/31064575439
+— exit 0, "PASS: gate result" step, gate markdown in the job summary and
+posted as a PR comment by `github-actions[bot]`, calibration-certificate
+header rendered (κ = 0.749, adequate). Measured: candidate a Δ +0.52
+(p = 0.9375, m = 4, sparse-delta warning printed, MDE 1.02), candidate b
+Δ +0.52 (p = 0.8184, m = 10, MDE 1.35); adversarial guardrail not tripped
+for either (+0.26 / −0.26). Reported token cost ~$0.78 for the run. These
+per-candidate deltas differ from the 2026-07-19 figures because each gate
+run re-samples the candidates; the verdict and the decision path are what
+this evidence fixes, not the point estimates.
+
+The 401 span-export noise disclosed in the original run did not recur: the
+repository variable was created as `LANGFUSE_BASE_URL` from the start, so
+traces exported to the US host and the report contained zero
+`Failed to export span batch` lines. The `2>&1` stderr-routing item flagged
+for T20 triage above is therefore untested by this run rather than resolved
+— there was no degradation output for it to route.
+
+**Seed-regression demo, exit 1.** Run:
+https://github.com/jluna777/llm-evaluation-harness/actions/runs/31065984371
+(`workflow_dispatch`, demo=true, 2026-08-06 02:34→02:51 UTC). exit_code=1
+routed to the failing step named **"FAIL: regression detected"**, with
+"PASS: gate result" and both other FAIL steps skipped. Baselines untouched:
+the `baselines/` tree hash on the remote is byte-identical to local
+(`b1d0207…`) and `main` did not move.
+
+**Missing-credential demo, exit 2, distinct from exit 1.**
+`LANGFUSE_PUBLIC_KEY` was temporarily deleted and restored from the local
+`.env` immediately after the run (value never displayed). Run:
+https://github.com/jluna777/llm-evaluation-harness/actions/runs/31066946605
+— the job completed in 12 seconds, failing fast at the spec §8 contract
+before constructing any provider client, so it spent zero API calls.
+exit_code=2 routed to the failing step named **"FAIL: measurement error
+(gate could not measure)"** while "FAIL: regression detected" stayed
+skipped — the inverse of the seed-regression run, which is the exit-1 vs
+exit-2 distinction this pair of demos exists to demonstrate (spec §7).
